@@ -170,18 +170,19 @@ static void vmpressure_work_fn(struct work_struct *work)
 	unsigned long scanned;
 	unsigned long reclaimed;
 
-	/*
-	 * Several contexts might be calling vmpressure(), so it is
-	 * possible that the work was rescheduled again before the old
-	 * work context cleared the counters. In that case we will run
-	 * just after the old work returns, but then scanned might be zero
-	 * here. No need for any locks here since we don't care if
-	 * vmpr->reclaimed is in sync.
-	 */
-	if (!vmpr->scanned)
-		return;
-
 	mutex_lock(&vmpr->sr_lock);
+
+	/*
+	 * Several contexts might be calling vmpressure() and the work
+	 * item is sitting on !WQ_NON_REENTRANT workqueue so different
+	 * CPUs might execute it concurrently. Bail out if the scanned
+	 * counter is already 0 because all the work has been done already.
+	 */
+	if (!vmpr->scanned) {
+		spin_unlock(&vmpr->sr_lock);
+		return;
+	}
+
 	scanned = vmpr->scanned;
 	reclaimed = vmpr->reclaimed;
 	vmpr->scanned = 0;
