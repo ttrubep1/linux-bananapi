@@ -441,14 +441,14 @@ static int rt2870_suspend(
 	struct usb_interface *intf,
 	pm_message_t state)
 {
+#ifdef USB_SUPPORT_SELECTIVE_SUSPEND
+        UCHAR Flag;
+#endif
 	struct net_device *net_dev;
 	VOID *pAd = usb_get_intfdata(intf);
 
 	late_resume_flag = TRUE;
 
-#ifdef USB_SUPPORT_SELECTIVE_SUSPEND
-	UCHAR Flag;
-#endif	
 #if defined(CONFIG_HAS_EARLYSUSPEND) || defined(CONFIG_ANDROID_POWER)
 	if ((RT_IS_EARLYSUSPEND_REGISTERED((PRTMP_ADAPTER)pAd)) && (late_resume_flag == TRUE)){
 		VIRTUAL_IF_DOWN((VOID *)pAd);
