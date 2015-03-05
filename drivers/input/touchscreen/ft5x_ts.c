@@ -1981,6 +1981,11 @@ static int __init ft5x_ts_init(void)
 		class_destroy(i2c_dev_class);
 	}
 
+	// This delay is required to run on a Banana Pi.
+	// Don't know why but without it does not work reliable.
+	// Please let me know if you know the real cause!
+	msleep(100);
+
 	ret = i2c_add_driver(&ft5x_ts_driver);
 
 	return ret;
