@@ -45,8 +45,8 @@ static const struct snd_pcm_hardware sunxi_pcm_hardware = {
 					SNDRV_PCM_RATE_KNOT,
 	.rate_min		= 8000,
 	.rate_max		= 192000,
-	.channels_min		= 1,
-	.channels_max		= 2,
+	.channels_min		= 2,
+	.channels_max		= 8,
 	.buffer_bytes_max	= 128*1024, /* value must be (2^n)Kbyte size */
 	.period_bytes_min	= 1024*4,
 	.period_bytes_max	= 1024*32,
@@ -347,7 +347,7 @@ static void sunxi_pcm_free_dma_buffers(struct snd_pcm *pcm)
 	struct snd_dma_buffer *buf;
 	struct snd_pcm_substream *substream;
 
-	for (stream = 0; stream < 2; stream++) {
+	for (stream = 0; stream < 8; stream++) {
 		substream = pcm->streams[stream].substream;
 		if (!substream)
 			continue;
@@ -374,6 +374,8 @@ static int sunxi_pcm_new(struct snd_soc_pcm_runtime *rtd)
 		card->dev->dma_mask = &sunxi_pcm_mask;
 	if (!card->dev->coherent_dma_mask)
 		card->dev->coherent_dma_mask = 0xffffffff;
+
+	strcpy(rtd->pcm->name, "sunxi HDMI PCM");
 
 	if (pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream) {
 		ret = sunxi_pcm_preallocate_dma_buffer(pcm,
