@@ -179,7 +179,7 @@ static void vmpressure_work_fn(struct work_struct *work)
 	 * counter is already 0 because all the work has been done already.
 	 */
 	if (!vmpr->scanned) {
-		spin_unlock(&vmpr->sr_lock);
+		mutex_unlock(&vmpr->sr_lock);
 		return;
 	}
 
